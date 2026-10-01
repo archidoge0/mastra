@@ -59,7 +59,8 @@ jobs:
           git commit -m 'chore: version - exit prerelease mode' --no-verify
           pnpm install
           echo "GHAV_VERSIONED_TREE=$(git rev-parse HEAD^{tree})"
-          node -e 'const p=require("./.changeset/pre.json");console.log(`GHAV_POST_PRE_MODE=${p.mode}`)'
+          test ! -e .changeset/pre.json
+          echo "GHAV_POST_PRE_FILE=absent"
       - name: Build versioned packages
         run: pnpm build
       - name: Check complete local core output
