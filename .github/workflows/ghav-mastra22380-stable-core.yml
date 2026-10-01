@@ -1,0 +1,77 @@
+name: GHAV Mastra 22380 stable core ours
+on:
+  push:
+    branches:
+      - codex/ghav-mastra22380-ours
+permissions:
+  contents: read
+jobs:
+  stable-core:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - name: Checkout fixed historical source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 1de3a84faf6ddd63b00d4a3bf00c0f1aaeb26b86
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Fixed-source and runner witness
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "1de3a84faf6ddd63b00d4a3bf00c0f1aaeb26b86"
+          node -e 'const p=require("./.changeset/pre.json");if(p.mode!=="pre"||p.tag!=="alpha")process.exit(1)'
+          echo "GHAV_SOURCE_SHA=$(git rev-parse HEAD)"
+          echo "GHAV_SOURCE_TREE=$(git rev-parse HEAD^{tree})"
+          echo "GHAV_EVAL_SHA=$GITHUB_SHA"
+          echo "GHAV_IMAGE_VERSION=${ImageVersion:-unknown}"
+      - name: Install fixed pnpm
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413
+        with:
+          version: 11.21.0
+          run_install: false
+      - name: Set up fixed Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 24.21.0
+          cache: pnpm
+          package-manager-cache: false
+      - name: Version witness
+        shell: bash
+        run: |
+          node --version
+          pnpm --version
+          echo "GHAV_LOCK_SHA=$(sha256sum pnpm-lock.yaml | cut -d' ' -f1)"
+      - name: Install dependencies
+        run: pnpm install
+      - name: Build before version exit
+        run: pnpm build
+      - name: Exit prerelease and version packages
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          git config user.name 'GHAV experiment'
+          git config user.email 'ghav-experiment@users.noreply.github.com'
+          pnpm changeset-cli pre exit
+          pnpm changeset-cli version
+          git add -A
+          git commit -m 'chore: version - exit prerelease mode' --no-verify
+          pnpm install
+          echo "GHAV_VERSIONED_TREE=$(git rev-parse HEAD^{tree})"
+          node -e 'const p=require("./.changeset/pre.json");console.log(`GHAV_POST_PRE_MODE=${p.mode}`)'
+      - name: Build versioned packages
+        run: pnpm build
+      - name: Check complete local core output
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s packages/core/dist/index.js
+          test -s packages/core/dist/index.cjs
+          echo "GHAV_CORE_VERSION=$(node -p 'require("./packages/core/package.json").version')"
+          echo "GHAV_CORE_ESM_SHA=$(sha256sum packages/core/dist/index.js | cut -d' ' -f1)"
+          echo "GHAV_CORE_CJS_SHA=$(sha256sum packages/core/dist/index.cjs | cut -d' ' -f1)"
+          echo "GHAV_FINAL_TREE=$(git rev-parse HEAD^{tree})"
+          find . -type d \( -name node_modules -o -name .git -o -name .turbo \) -prune -o -type f -path '*/dist/*' -print0 | LC_ALL=C sort -z | xargs -0 -r sha256sum | sha256sum | sed 's/^/GHAV_DIST_AGGREGATE_SHA=/'
