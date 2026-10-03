@@ -1,24 +1,7 @@
 name: Call External Mastra Workflow
 
 on:
-  workflow_call:
-    inputs:
-      workflow_name:
-        description: 'Name of the external workflow to execute'
-        required: true
-        type: string
-      input_data:
-        description: 'JSON input data for the workflow'
-        required: true
-        type: string
-      base_url:
-        description: 'Base URL for the Mastra Cloud API'
-        required: true
-        type: string
-    secrets:
-      MASTRA_TRIAGE_JWT_KEY:
-        required: true
-
+  workflow_dispatch:
 jobs:
   execute-workflow:
     permissions: {}

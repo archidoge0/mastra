@@ -4,17 +4,7 @@ permissions:
   contents: read
 
 on:
-  workflow_call:
-    inputs:
-      head_sha:
-        required: true
-        type: string
-    secrets:
-      TURBO_TOKEN:
-        required: false
-      TURBO_TEAM:
-        required: false
-
+  workflow_dispatch:
 jobs:
   setup:
     if: ${{ github.repository == 'mastra-ai/mastra' }}

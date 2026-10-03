@@ -1,8 +1,6 @@
 name: GH_Issue_Triage
 on:
-  issues:
-    types: [opened, reopened]
-
+  workflow_dispatch:
 jobs:
   issue_created:
     # Only run on the main repository, not on forks

@@ -1,14 +1,7 @@
 name: Mastra Code E2E
 
 on:
-  pull_request:
-    paths:
-      - 'mastracode/**'
-      - 'packages/core/**'
-      - 'pnpm-lock.yaml'
-      - '.github/workflows/mastracode-e2e.yml'
   workflow_dispatch:
-
 concurrency:
   group: ${{ github.workflow }}-pr-${{ github.event.pull_request.number || github.sha }}
   cancel-in-progress: true

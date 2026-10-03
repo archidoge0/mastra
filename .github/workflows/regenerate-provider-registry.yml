@@ -4,12 +4,7 @@ permissions:
   contents: read
 
 on:
-  # Run every 6 hours to keep provider registry and documentation up-to-date
-  schedule:
-    - cron: '0 */6 * * *' # Every 6 hours
-  # Allow manual triggering for testing
   workflow_dispatch:
-
 concurrency:
   group: regenerate-providers-docs
   cancel-in-progress: false

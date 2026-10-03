@@ -5,8 +5,7 @@ permissions:
   pull-requests: write
 
 on:
-  - pull_request_target
-
+  workflow_dispatch:
 jobs:
   labeler:
     runs-on: starsling-ubuntu-24.04

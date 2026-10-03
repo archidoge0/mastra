@@ -1,28 +1,26 @@
 name: Setup pnpm and Node.js
 description: Setup pnpm with custom registry and Node.js with cache
-
 inputs:
   install-dependencies:
-    description: 'Whether to run pnpm install after setup'
+    description: Whether to run pnpm install after setup
     required: false
-    default: 'true'
+    default: "true"
   package-manager-cache:
-    description: 'Should use package manager cache'
+    description: Should use package manager cache
     required: false
-    default: 'true'
+    default: "true"
   package-json-file:
-    description: 'Path to package.json for reading packageManager version (useful when checkout is not at workspace root)'
+    description: Path to package.json for reading packageManager version (useful when checkout is not at workspace root)
     required: false
-    default: ''
+    default: ""
   cache-dependency-path:
-    description: 'Path to pnpm-lock.yaml for cache key (useful when checkout is not at workspace root)'
+    description: Path to pnpm-lock.yaml for cache key (useful when checkout is not at workspace root)
     required: false
-    default: ''
+    default: ""
   version:
-    description: 'Explicit pnpm version (overrides packageManager detection)'
+    description: Explicit pnpm version (overrides packageManager detection)
     required: false
-    default: ''
-
+    default: ""
 runs:
   using: composite
   steps:
@@ -30,11 +28,6 @@ runs:
       uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
       with:
         node-version: 22.13.0
-
-    # Let pnpm/action-setup handle store caching instead of actions/setup-node.
-    # setup-node's cache: 'pnpm' runs `pnpm store path --silent` which returns
-    # a bogus path on self-hosted runners where pnpm is installed into
-    # ~/setup-pnpm/node_modules/.bin/.
     - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
       name: Install pnpm
       with:
@@ -43,11 +36,10 @@ runs:
         package_json_file: ${{ inputs.package-json-file || 'package.json' }}
         cache: ${{ inputs.package-manager-cache == 'true' }}
         cache_dependency_path: ${{ inputs.cache-dependency-path || 'pnpm-lock.yaml' }}
-
     - name: Reset corrupt pnpm store cache
       id: reset-store
       if: ${{ inputs.package-manager-cache == 'true' }}
-      shell: bash
+      shell: bash /home/runner/ghav-bin/trace-shell.sh {0}
       run: |
         set +e
         store_path=$(pnpm store path --silent)
@@ -105,13 +97,16 @@ runs:
           echo "Store content was also modified; the install step will refetch with --force."
           echo "force-install=true" >> "$GITHUB_OUTPUT"
         fi
-
+      env:
+        GHAV_SUB: 02-Reset_corrupt_pnpm_store_cache
     - name: Install dependencies
       if: ${{ inputs.install-dependencies == 'true' }}
-      shell: bash
+      shell: bash /home/runner/ghav-bin/trace-shell.sh {0}
       run: |
         if [ "${{ steps.reset-store.outputs.force-install }}" = "true" ]; then
           pnpm install --frozen-lockfile --force
         else
           pnpm install --frozen-lockfile
         fi
+      env:
+        GHAV_SUB: 03-Install_dependencies

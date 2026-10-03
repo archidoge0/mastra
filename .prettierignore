@@ -39,3 +39,6 @@ packages/server/**/*.d.ts
 stores/clickhouse/docker/keeper.test.xml
 
 **/coverage/**
+# ghav harness files
+.github/workflows/ghav-*.yml
+.github/actions/setup-pnpm-node/action.y*ml

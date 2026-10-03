@@ -5,11 +5,6 @@ permissions:
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-      - 0.x
-
 jobs:
   trigger:
     # Only run on the main repository, not on forks

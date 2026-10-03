@@ -6,30 +6,6 @@ permissions:
 
 on:
   workflow_dispatch:
-    inputs:
-      publish_type:
-        description: 'Type of publish/action'
-        required: true
-        type: choice
-        options:
-          - prerelease
-          - stable
-          - enter-prerelease
-          - snapshot
-        default: prerelease
-      tag:
-        description: 'npm tag (for snapshot: custom tag, otherwise auto-determined)'
-        required: false
-        type: string
-      dry_run:
-        description: 'Dry run (no actual publish)'
-        required: false
-        type: boolean
-        default: false
-  push:
-    branches:
-      - main
-
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 jobs:
