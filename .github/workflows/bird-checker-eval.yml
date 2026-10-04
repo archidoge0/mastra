@@ -1,11 +1,7 @@
 name: Run Bird Checker evals
 
 on:
-  push:
-    paths:
-      - 'examples/bird-checker-with-nextjs-and-eval/**'
-      - '.github/workflows/bird-checker-eval.yml'
-
+  workflow_dispatch:
 permissions:
   pull-requests: write
   contents: read

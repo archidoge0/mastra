@@ -24,3 +24,5 @@ explorations/longmemeval/.temp-longmemeval/**/*.json
 e2e-tests/kitchen-sink/tests/**/*.aria.yml
 packages/codemod/src/test/__fixtures__/**/*.ts
 packages/mcp-docs-server/.docs/**
+# ghav harness files
+.github/workflows/ghav-*.yml
